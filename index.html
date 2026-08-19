@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방탈출 - 수상한 출근길</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #fff5f8;
+    --bg-card: #ffffff;
+    --bg-panel: #fef0f4;
+    --accent-yellow: #e85d8a;
+    --accent-orange: #f4845f;
+    --accent-red: #e03060;
+    --accent-green: #5bb87a;
+    --accent-blue: #7b9fe8;
+    --text-primary: #3a2a35;
+    --text-secondary: #7a5a6a;
+    --text-dim: #b89aaa;
+    --border: #f0cdd8;
+    --border-glow: #f4adc4;
+    --shadow-yellow: rgba(232,93,138,0.18);
+    --shadow-red: rgba(224,48,96,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nanum Gothic', sans-serif;
+    background: linear-gradient(160deg, #fff0f5 0%, #fde8f0 40%, #fdf5e8 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Background Effect ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: 
+      radial-gradient(ellipse at 15% 15%, rgba(255,182,210,0.35) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 80%, rgba(255,220,160,0.3) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 50%, rgba(200,230,255,0.15) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* ─── Screens ─── */
+  .screen { display: none; min-height: 100vh; padding: 24px 16px; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ─── INTRO ─── */
+  #screen-intro {
+    text-align: center;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(232,93,138,0.04) 39px, rgba(232,93,138,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(232,93,138,0.04) 39px, rgba(232,93,138,0.04) 40px);
+  }
+
+  .intro-badge {
+    display: inline-block;
+    background: var(--accent-yellow);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+
+  .intro-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+  .intro-title span { color: var(--accent-yellow); }
+
+  .intro-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+    letter-spacing: 1px;
+  }
+
+  .story-box {
+    max-width: 640px;
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-yellow);
+    border-radius: 8px;
+    padding: 24px 28px;
+    text-align: left;
+    margin-bottom: 36px;
+    line-height: 1.8;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .story-box .story-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent-yellow);
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .score-rules {
+    max-width: 640px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .rule-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .rule-card .rule-icon { font-size: 24px; margin-bottom: 8px; }
+  .rule-card .rule-val { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+  .rule-card .rule-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+  .rule-card.correct .rule-val { color: var(--accent-green); }
+  .rule-card.hint .rule-val { color: var(--accent-red); }
+  .rule-card.bonus .rule-val { color: var(--accent-yellow); }
+
+  /* ─── Buttons ─── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; cursor: pointer; border-radius: 6px;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-weight: 800; transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent-yellow); color: #ffffff;
+    padding: 14px 40px; font-size: 15px;
+    box-shadow: 0 4px 20px var(--shadow-yellow);
+  }
+  .btn-primary:hover { background: #d94a7a; transform: translateY(-2px); box-shadow: 0 6px 28px var(--shadow-yellow); }
+  .btn-secondary {
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 10px 24px; font-size: 13px;
+  }
+  .btn-secondary:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+  .btn-sm {
+    padding: 8px 18px; font-size: 12px;
+    background: var(--bg-panel); color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-sm:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+  /* ─── GATE SCREEN ─── */
+  #screen-gate {
+    text-align: center;
+  }
+  .gate-icon { font-size: 56px; margin-bottom: 20px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .gate-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .gate-title .gate-num { color: var(--accent-orange); }
+  .gate-desc {
+    max-width: 520px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+  .mission-pills {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 32px;
+  }
+  .mission-pill {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* ─── MISSION SCREEN ─── */
+  #screen-mission { padding: 20px 16px; justify-content: flex-start; padding-top: 30px; }
+
+  /* HUD */
+  .hud {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(255,245,248,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 100;
+  }
+  .hud-left { display: flex; align-items: center; gap: 20px; }
+  .hud-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .hud-item .hud-icon { font-size: 16px; }
+  .hud-item .hud-val { font-weight: 800; }
+  .hud-item.score .hud-val { color: var(--accent-yellow); }
+  .hud-item.timer .hud-val { color: var(--accent-green); }
+  .hud-item.timer.warning .hud-val { color: var(--accent-orange); }
+  .hud-item.timer.danger .hud-val { color: var(--accent-red); animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .progress-bar-wrap {
+    position: fixed; top: 48px; left: 0; right: 0;
+    height: 3px; background: var(--border); z-index: 100;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-yellow), var(--accent-orange));
+    transition: width 0.5s ease;
+  }
+
+  /* Mission Card */
+  .mission-wrapper {
+    max-width: 700px; width: 100%;
+    margin-top: 68px;
+    padding-bottom: 40px;
+  }
+
+  .mission-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .mission-num {
+    background: var(--accent-yellow);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+  .mission-title-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+  }
+
+  .situation-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-orange);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+  .situation-box .sit-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent-orange);
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .question-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .question-text {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+  }
+  .question-text .q-label {
+    display: inline-block;
+    background: rgba(245,200,66,0.15);
+    color: var(--accent-yellow);
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+  }
+
+  /* OX Choices */
+  .ox-choices { display: flex; gap: 16px; }
+  .ox-btn {
+    flex: 1; padding: 24px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 42px;
+  }
+  .ox-btn:hover { border-color: var(--accent-yellow); transform: translateY(-3px); }
+  .ox-btn .ox-label { font-size: 13px; font-weight: 700; margin-top: 6px; color: var(--text-secondary); }
+  .ox-btn.selected-O { border-color: var(--accent-green); background: rgba(62,207,114,0.08); }
+  .ox-btn.selected-X { border-color: var(--accent-red); background: rgba(232,57,74,0.08); }
+
+  /* Multi Choices */
+  .multi-choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 18px;
+    background: var(--bg-panel);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: 'Nanum Gothic', sans-serif;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    width: 100%;
+  }
+  .choice-btn:hover { border-color: var(--border-glow); background: rgba(255,255,255,0.03); }
+  .choice-btn.selected { border-color: var(--accent-blue); background: rgba(74,144,226,0.1); }
+  .choice-btn .choice-num {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+    margin-top: 1px;
+    transition: all 0.2s;
+  }
+  .choice-btn.selected .choice-num { background: var(--accent-blue); color: white; }
+
+  .submit-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 20px;
+  }
+  .hint-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Nanum Gothic', sans-serif;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .hint-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+  .hint-btn.used { border-color: var(--accent-orange); color: var(--accent-orange); background: rgba(240,125,42,0.07); cursor: default; }
+
+  /* Hint Box */
+  .hint-box {
+    background: rgba(240,125,42,0.08);
+    border: 1px solid rgba(240,125,42,0.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #f0a060;
+    line-height: 1.7;
+    display: none;
+  }
+  .hint-box.show { display: block; animation: fadeIn 0.3s ease; }
+  .hint-box .hint-label { font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-size: 12px; }
+
+  /* Feedback */
+  .feedback-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .feedback-overlay.show { opacity: 1; pointer-events: all; }
+
+  .feedback-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 36px 40px;
+    max-width: 500px; width: 90%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+    border: 1px solid var(--border);
+  }
+  .feedback-overlay.show .feedback-card { transform: scale(1); }
+
+  .feedback-icon { font-size: 56px; margin-bottom: 16px; }
+  .feedback-result { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .feedback-result.correct { color: var(--accent-green); }
+  .feedback-result.wrong { color: var(--accent-red); }
+  .feedback-score-delta {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .feedback-score-delta.plus { background: rgba(62,207,114,0.1); color: var(--accent-green); }
+  .feedback-score-delta.zero { background: rgba(232,57,74,0.1); color: var(--accent-red); }
+  .feedback-explanation {
+    background: var(--bg-panel);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .feedback-explanation .exp-label {
+    font-size: 11px; font-weight: 800;
+    color: var(--accent-yellow);
+    letter-spacing: 1px; margin-bottom: 8px;
+  }
+
+  /* ─── RESULT SCREEN ─── */
+  #screen-result {
+    text-align: center;
+    padding: 40px 16px;
+  }
+  .result-trophy { font-size: 72px; margin-bottom: 20px; animation: trophyBounce 1s ease; }
+  @keyframes trophyBounce {
+    0%{transform:translateY(-30px);opacity:0}
+    60%{transform:translateY(8px)}
+    100%{transform:translateY(0);opacity:1}
+  }
+  .result-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .result-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 40px; }
+
+  .score-display {
+    font-size: clamp(48px, 12vw, 80px);
+    font-weight: 800;
+    color: var(--accent-yellow);
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px var(--shadow-yellow);
+  }
+  .score-max { font-size: 16px; color: var(--text-dim); margin-bottom: 36px; }
+
+  .result-breakdown {
+    max-width: 480px; width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .result-breakdown h3 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .br-label { color: var(--text-secondary); }
+  .breakdown-row .br-val { font-weight: 800; }
+  .breakdown-row .br-val.green { color: var(--accent-green); }
+  .breakdown-row .br-val.red { color: var(--accent-red); }
+  .breakdown-row .br-val.yellow { color: var(--accent-yellow); }
+  .breakdown-row .br-val.blue { color: var(--accent-blue); }
+
+  .grade-badge {
+    display: inline-block;
+    padding: 10px 32px;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    letter-spacing: 2px;
+  }
+  .grade-S { background: linear-gradient(135deg,#f4845f,#e85d8a); color: #ffffff; }
+  .grade-A { background: rgba(62,207,114,0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+  .grade-B { background: rgba(74,144,226,0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+  .grade-C { background: rgba(240,125,42,0.15); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+  .grade-D { background: rgba(232,57,74,0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+  /* Mission result dots */
+  .mission-dots {
+    display: flex; gap: 8px; justify-content: center;
+    margin-bottom: 32px; flex-wrap: wrap;
+  }
+  .mission-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+  }
+  .mission-dot.correct { background: rgba(62,207,114,0.15); color: var(--accent-green); border: 2px solid var(--accent-green); }
+  .mission-dot.wrong { background: rgba(232,57,74,0.15); color: var(--accent-red); border: 2px solid var(--accent-red); }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .anim-in { animation: fadeIn 0.4s ease both; }
+
+  .btn-copy {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 12px 32px;
+    font-size: 14px;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .btn-copy:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+  .btn-copy.copied { border-color: var(--accent-green); color: var(--accent-green); }
+
+  /* ─── Mode Select ─── */
+  .mode-select { max-width: 640px; width: 100%; margin-bottom: 20px; }
+  .mode-label {
+    font-size: 11px; letter-spacing: 2px; color: var(--accent-yellow);
+    font-weight: 800; text-transform: uppercase;
+    margin-bottom: 10px; text-align: center;
+  }
+  .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .mode-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Nanum Gothic', sans-serif;
+    color: var(--text-primary);
+  }
+  .mode-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+  .mode-card.selected {
+    border-color: var(--accent-yellow);
+    background: var(--bg-panel);
+    box-shadow: 0 4px 16px var(--shadow-yellow);
+  }
+  .mode-card .mode-icon { font-size: 30px; margin-bottom: 6px; }
+  .mode-card .mode-name { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+  .mode-card.selected .mode-name { color: var(--accent-red); }
+  .mode-card .mode-tag {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2px 10px; margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+  .mode-card.selected .mode-tag {
+    background: var(--accent-yellow); border-color: var(--accent-yellow); color: #fff;
+  }
+  .mode-card .mode-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  @media (max-width: 480px) {
+    .mode-cards { grid-template-columns: 1fr; }
+    .mode-card { display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px; }
+    .mode-card .mode-icon { font-size: 26px; margin: 0; }
+    .mode-card .mode-body { flex: 1; }
+  }
+  .team-note {
+    font-size: 12px; color: var(--accent-green);
+    background: rgba(91,184,122,0.10);
+    border: 1px solid rgba(91,184,122,0.35);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 12px;
+  }
+
+  /* ─── 자료실 ─── */
+  #screen-resource.active { justify-content: flex-start; }
+  .res-wrap { max-width: 720px; width: 100%; }
+  .res-head { text-align: center; margin-bottom: 8px; }
+  .res-head h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 26px; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .res-head .res-source {
+    font-size: 12px; color: var(--text-dim); line-height: 1.7;
+  }
+  .res-focus-banner {
+    background: var(--bg-card);
+    border: 2px solid var(--accent-orange);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 18px 0 4px;
+    font-size: 13px; line-height: 1.7;
+    color: var(--text-secondary);
+  }
+  .res-focus-banner strong { color: var(--accent-red); }
+
+  .res-cat { margin-top: 26px; }
+  .res-cat-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    padding-bottom: 8px; margin-bottom: 10px;
+    border-bottom: 2px solid currentColor;
+  }
+  .res-cat-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: currentColor; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .res-cat-num span { color: #fff; }
+  .res-cat-count { margin-left: auto; font-size: 11px; font-weight: 700; opacity: 0.75; }
+
+  .res-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .res-item.open { border-color: var(--border-glow); box-shadow: 0 4px 14px var(--shadow-yellow); }
+  .res-item.focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(244,132,95,0.18); }
+
+  .res-q {
+    width: 100%; display: flex; align-items: flex-start; gap: 10px;
+    padding: 14px 16px; background: none; border: none; cursor: pointer;
+    text-align: left; font-family: 'Nanum Gothic', sans-serif;
+    font-size: 14.5px; font-weight: 700; line-height: 1.6;
+    color: var(--text-primary);
+  }
+  .res-q:hover { background: var(--bg-panel); }
+  .res-q .res-chev { margin-left: auto; color: var(--text-dim); font-size: 12px; transition: transform 0.2s; flex-shrink: 0; }
+  .res-item.open .res-q .res-chev { transform: rotate(180deg); }
+
+  .res-badge {
+    flex-shrink: 0; font-size: 11px; font-weight: 800;
+    border-radius: 20px; padding: 3px 9px; white-space: nowrap;
+    line-height: 1.5; margin-top: 1px;
+  }
+  .res-badge.yes  { background: rgba(91,184,122,0.15);  color: var(--accent-green); border: 1px solid var(--accent-green); }
+  .res-badge.no   { background: rgba(224,48,96,0.10);   color: var(--accent-red);   border: 1px solid var(--accent-red); }
+  .res-badge.cond { background: rgba(244,132,95,0.12);  color: var(--accent-orange);border: 1px solid var(--accent-orange); }
+
+  .res-a {
+    display: none;
+    padding: 0 16px 16px;
+    font-size: 13.5px; line-height: 1.85; color: var(--text-secondary);
+    border-top: 1px dashed var(--border);
+  }
+  .res-item.open .res-a { display: block; animation: fadeIn 0.3s ease both; }
+  .res-a .res-verdict {
+    display: inline-block; font-weight: 800; margin: 14px 0 8px;
+    color: var(--text-primary); font-size: 15px;
+  }
+  .res-a strong { color: var(--accent-red); font-weight: 800; }
+  .res-a .res-law {
+    display: block; margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text-dim);
+  }
+  .res-a .res-link {
+    display: inline-block; margin-top: 10px; font-size: 12px;
+    color: var(--accent-blue); text-decoration: none; font-weight: 700;
+  }
+  .res-a .res-link:hover { text-decoration: underline; }
+
+  .res-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 28px 0 8px; }
+  .btn-ghost {
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border); padding: 12px 26px;
+    font-size: 14px; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); }
+
+  .result-resource-card {
+    background: var(--bg-card);
+    border: 2px solid var(--accent-orange);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 4px 0 20px;
+    max-width: 480px; width: 100%;
+    text-align: center;
+  }
+  .result-resource-card .rr-label {
+    font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    color: var(--accent-orange); margin-bottom: 8px;
+  }
+  .result-resource-card .rr-desc {
+    font-size: 13px; line-height: 1.75; color: var(--text-secondary); margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ════ INTRO SCREEN ════ -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro-badge">🚨 반부패. 청렴교육</div>
+    <h1 class="intro-title">수상한 <span>출근길</span></h1>
+    <p class="intro-subtitle">⚖️ 청탁금지법 × 🏫 직장 내 갑질 예방 교육</p>
+
+    <div class="story-box">
+      <div class="story-label">📖 스토리</div>
+      <div style="font-size:40px;text-align:center;margin:8px 0 12px;">👩‍🏫</div>
+      ☀️ 화창한 아침, 운남초등학교 정문을 통과하는 순간 눈앞이 번쩍하더니 낯선 교무실에 덩그러니 서 있게 됩니다. 달력을 보니 오늘은 <strong>스승의 날 🌹</strong>이자, <strong>학부모 상담 주간 👨‍👩‍👧</strong>이자, <strong>동료 선생님의 결혼식 💒</strong>이 겹친 아주 기묘한 날입니다.<br><br>
+      🗝️ 이 교무실을 탈출하려면 <strong>7개의 미션</strong>을 모두 해결해야 합니다. 지식을 총동원하여 위기를 헤쳐나가세요!
+    </div>
+
+    <div class="mode-select">
+      <div class="mode-label">🎯 연수 방식 선택</div>
+      <div class="mode-cards">
+        <button class="mode-card selected" id="mode-card-solo" onclick="selectMode('solo')">
+          <div class="mode-icon">🏃</div>
+          <div class="mode-body">
+            <div class="mode-name">개인전</div>
+            <div class="mode-tag">5분 제한</div>
+            <div class="mode-desc">혼자 풀고 시간 안에 탈출<br>900점 만점</div>
+          </div>
+        </button>
+        <button class="mode-card" id="mode-card-team" onclick="selectMode('team')">
+          <div class="mode-icon">👥</div>
+          <div class="mode-body">
+            <div class="mode-name">모둠전</div>
+            <div class="mode-tag">시간 제한 없음</div>
+            <div class="mode-desc">모둠원과 토의하고 제출<br>700점 만점</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="score-rules" id="rules-solo">
+      <div class="rule-card correct">
+        <div class="rule-icon">✅</div>
+        <div class="rule-val">+100점</div>
+        <div class="rule-desc">미션 1개<br>정답 시</div>
+      </div>
+      <div class="rule-card hint" style="border-color:var(--accent-red);">
+        <div class="rule-icon">❌</div>
+        <div class="rule-val" style="color:var(--accent-red);">−10점</div>
+        <div class="rule-desc">미션 1개<br>오답 시</div>
+      </div>
+      <div class="rule-card hint">
+        <div class="rule-icon">💡</div>
+        <div class="rule-val">−30점</div>
+        <div class="rule-desc">힌트 1회<br>사용 시</div>
+      </div>
+      <div class="rule-card bonus">
+        <div class="rule-icon">⏱️</div>
+        <div class="rule-val">+200점</div>
+        <div class="rule-desc">5분 안에<br>완료 시 보너스</div>
+      </div>
+    </div>
+
+    <div class="score-rules" id="rules-team" style="display:none;">
+      <div class="rule-card correct">
+        <div class="rule-icon">✅</div>
+        <div class="rule-val">+100점</div>
+        <div class="rule-desc">첫 시도에<br>정답 시</div>
+      </div>
+      <div class="rule-card correct" style="border-color:var(--accent-blue);">
+        <div class="rule-icon">🔁</div>
+        <div class="rule-val" style="color:var(--accent-blue);">+50점</div>
+        <div class="rule-desc">다시 풀어<br>정답 시</div>
+      </div>
+      <div class="rule-card hint">
+        <div class="rule-icon">💡</div>
+        <div class="rule-val">−20점</div>
+        <div class="rule-desc">힌트 1회<br>사용 시</div>
+      </div>
+      <div class="rule-card bonus" style="border-color:var(--accent-green);">
+        <div class="rule-icon">💬</div>
+        <div class="rule-val" style="color:var(--accent-green);">감점 없음</div>
+        <div class="rule-desc">오답을 마음껏<br>토의하세요</div>
+      </div>
+    </div>
+
+    <div style="max-width:640px;width:100%;margin-bottom:24px;background:var(--bg-card);border:1px solid var(--accent-yellow);border-radius:10px;padding:20px 24px;">
+      <div id="ident-label" style="font-size:11px;letter-spacing:2px;color:var(--accent-yellow);font-weight:800;text-transform:uppercase;margin-bottom:10px;">👤 닉네임 입력 <span style="color:var(--accent-red)">* 필수</span></div>
+      <input type="text" id="nickname-input" placeholder="이름을 입력하세요" maxlength="20"
+        style="width:100%;padding:13px 18px;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:'Nanum Gothic',sans-serif;font-size:15px;outline:none;text-align:center;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--accent-yellow)'" onblur="this.style.borderColor='var(--border)'"
+        oninput="onNicknameInput()"
+        onkeydown="if(event.key==='Enter')startGame()">
+      <div id="nickname-error" style="display:none;color:var(--accent-red);font-size:12px;margin-top:8px;text-align:center;">⚠️ 닉네임을 입력해야 시작할 수 있습니다.</div>
+      <div id="mode-hint" style="font-size:12px;color:var(--text-secondary);margin-top:10px;text-align:center;line-height:1.6;">⏱️ 시작 버튼을 누르면 5분 타이머가 바로 시작됩니다.</div>
+    </div>
+
+    <button class="btn btn-primary" id="start-btn" onclick="startGame()" style="opacity:0.4;cursor:not-allowed;">🚪 미션 해결하기</button>
+    <button class="btn btn-ghost" style="margin-top:12px;" onclick="openResources('intro')">📄 자료 먼저 읽기</button>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:10px;text-align:center;line-height:1.7;">
+      국민권익위원회 「2026 스승의 날 알아야 할 청탁금지법 Q&amp;A」 10건
+    </div>
+  </div>
+
+  <!-- ════ GATE SCREEN ════ -->
+  <div id="screen-gate" class="screen">
+    <div class="gate-icon" id="gate-icon">🚪</div>
+    <h2 class="gate-title" id="gate-title"></h2>
+    <p class="gate-desc" id="gate-desc"></p>
+    <div class="mission-pills" id="gate-pills"></div>
+    <button class="btn btn-primary" onclick="startGateMissions()">미션 시작 →</button>
+  </div>
+
+  <!-- ════ MISSION SCREEN ════ -->
+  <div id="screen-mission" class="screen">
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-left">
+        <div class="hud-item score">
+          <span class="hud-icon">⭐</span>
+          <span class="hud-val" id="hud-score">0</span>
+          <span style="color:var(--text-dim);font-size:12px">점</span>
+        </div>
+        <div class="hud-item" id="hud-timer-wrap">
+          <span class="hud-icon">⏱</span>
+          <span class="hud-val" id="hud-timer">05:00</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim)" id="hud-progress">미션 1 / 7</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+
+    <!-- Mission Content -->
+    <div class="mission-wrapper anim-in" id="mission-content"></div>
+  </div>
+
+  <!-- ════ RESULT SCREEN ════ -->
+  <div id="screen-result" class="screen">
+    <div class="result-trophy" id="result-trophy">🏆</div>
+    <h2 class="result-title" id="result-title">탈출 성공!</h2>
+    <p class="result-subtitle" id="result-subtitle"></p>
+
+    <div class="score-display" id="result-score">0</div>
+    <div class="score-max" id="result-max">🌸 / 900점 만점 🌸</div>
+
+    <div class="grade-badge" id="result-grade">S</div>
+
+    <div class="mission-dots" id="result-dots"></div>
+
+    <div class="result-breakdown" id="result-breakdown"></div>
+
+    <div id="result-resource" style="display:none;"></div>
+
+    <button class="btn btn-primary" onclick="restartGame()">🔄 다시 도전하기</button>
+    <button class="btn btn-ghost" style="margin-top:12px;" onclick="openResources('result')">📄 자료실 전체 보기</button>
+    <button class="btn btn-copy" id="copy-btn" onclick="copyResult()">📋 결과 복사하기</button>
+  </div>
+
+  <!-- ════ RESOURCE SCREEN ════ -->
+  <div id="screen-resource" class="screen">
+    <div class="res-wrap">
+      <div class="res-head">
+        <h2>📄 스승의 날 청탁금지법 자료실</h2>
+        <div class="res-source">
+          질문을 눌러 답을 펼쳐 보세요. 먼저 스스로 판단해 본 뒤 확인하면 더 오래 남습니다.
+        </div>
+      </div>
+
+      <div id="res-focus"></div>
+      <div id="res-body"></div>
+
+      <div class="res-actions">
+        <button class="btn btn-ghost" onclick="toggleAllRes(true)">➕ 모두 펼치기</button>
+        <button class="btn btn-ghost" onclick="toggleAllRes(false)">➖ 모두 접기</button>
+      </div>
+
+      <div class="res-actions" style="margin-top:4px;">
+        <button class="btn btn-primary" id="res-back-btn" onclick="closeResources()">← 돌아가기</button>
+      </div>
+
+      <div class="res-source" style="text-align:center;margin:24px 0 8px;">
+        출처: 국민권익위원회 「2026 스승의 날 알아야 할 청탁금지법 Q&amp;A」<br>
+        이 자료실은 원문 카드뉴스의 문답을 읽기 쉽게 옮긴 것입니다. 실제 사안 판단은 소속 기관 청렴 담당 부서 또는 국민권익위원회(☎ 1398)에 문의하세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ FEEDBACK OVERLAY ════ -->
+  <div class="feedback-overlay" id="feedback-overlay">
+    <div class="feedback-card">
+      <div class="feedback-icon" id="fb-icon"></div>
+      <div class="feedback-result" id="fb-result"></div>
+      <div class="feedback-score-delta" id="fb-delta"></div>
+      <div class="feedback-explanation">
+        <div class="exp-label">📋 해설</div>
+        <div id="fb-explanation"></div>
+      </div>
+      <button class="btn btn-primary" id="fb-next-btn" onclick="nextMission()">다음 미션 →</button>
+      <button class="btn btn-secondary" id="fb-retry-btn" onclick="retryMission()" style="display:none;margin-top:10px;">🔁 다시 풀기</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  GAME DATA
+// ══════════════════════════════════════════
+const MISSIONS = [
+  {
+    id: 1,
+    gate: 1,
+    num: "미션 01",
+    topic: "청탁금지법",
+    situation: "한 학부모님이 다가와 \"선생님, 고생하시는데 이거 농수산물 세트니까 15만 원까지는 괜찮죠?\"라며 선물을 건넵니다. 당신과 직접적인 이해관계가 없는 이 학부모님의 선물을 받아도 될까요?",
+    question: "공직자에게 원활한 직무수행 또는 사교·의례 목적으로 선물은 5만 원, 농수산물 및 농수산가공품 선물은 15만 원까지 가능하다.",
+    type: "ox",
+    answer: "O",
+    hint: "원활한 직무수행이나 사교·의례 목적으로 주고받을 수 있는 선물의 기본적인 가액 기준을 떠올려 보세요. 우리 농수산물을 보호하기 위해 농수산물 및 가공품은 일반 선물보다 허용 한도가 조금 더 높답니다!",
+    explanation: "✅ 정답은 O입니다. 다만, 공직자의 직무와 직접적인 이해관계가 있는 경우에는 가액 범위 내라 하더라도 원활한 직무수행·사교·의례 목적으로 볼 수 없으므로 일체의 선물도 줄 수 없습니다. 즉, 해당 학부모는 직접 이해관계자이므로 이 경우엔 선물을 받을 수 없습니다."
+  },
+  {
+    id: 2,
+    gate: 1,
+    num: "미션 02",
+    topic: "청탁금지법",
+    situation: "옆 반 담임선생님의 결혼 소식이 들려옵니다. 축하하는 마음을 담아 반 학생과 학부모님이 축의금을 모아 전달하려고 하네요. 이 훈훈해 보이는 장면, 과연 법적으로도 훈훈할까요?",
+    question: "담임선생님의 경조사에 학생 또는 학부모가 축·조의금을 드릴 수 있나요?",
+    type: "ox",
+    answer: "X",
+    hint: "청탁금지법에서 가장 주의해야 할 것은 '직무관련성'입니다. 성적과 평가에 직접적인 영향을 미치는 현재의 담임선생님과 학생(학부모) 사이라면, 아무리 좋은 마음이라도 예외가 인정될 수 있을까요?",
+    explanation: "❌ 정답은 X입니다. 담임교사 및 교과담당교사와 학생(학부모) 사이의 경조사비는 원활한 직무수행, 사교·의례, 부조의 목적을 벗어나므로 허용되지 않습니다."
+  },
+  {
+    id: 3,
+    gate: 1,
+    num: "미션 03",
+    topic: "청탁금지법",
+    situation: "책상을 보니 롤케이크, 카네이션, 기프티콘, 캔커피가 가득합니다. '직무관련성'이라는 마법의 돋보기를 꺼내 들어 진정으로 받아도 안전한 선물만을 골라내세요!",
+    question: "다음 중 청탁금지법에 위배되지 않는 올바른 상황을 모두 고르세요.",
+    type: "multi",
+    choices: [
+      "① 학부모가 상담 후 교탁에 두고 간 3만 원 상당의 롤케이크를 동학년 선생님들과 나누어 먹었다.",
+      "② 스승의 날, '학생 대표'가 공개적인 자리에서 전달하는 카네이션을 감사히 받았다.",
+      "③ 학부모가 모바일 메신저로 보낸 5천 원짜리 커피 기프티콘은 소액이므로 부담 없이 받았다.",
+      "④ 작년에 졸업하여 상급학교로 진학한 제자가 스승의 날에 찾아와 건네준 캔커피를 고맙게 마셨다."
+    ],
+    answer: ["1","3"], // 0-indexed: ② = index 1, ④ = index 3
+    hint: "청탁금지법의 핵심 단어는 '직무관련성'! 현재 내가 가르치고 평가하는 재학생·학부모와는 커피 한 잔도 NO! 하지만 스승의 날 '공식적인 대표'가 주거나, 이미 졸업해서 직무관련성이 끊어진 제자라면 어떨까요? 안전한 상황 2가지를 찾아보세요.",
+    explanation: "교사와 재학생·학부모는 직무관련성이 있어 금액에 상관없이(소액 기프티콘 포함) 선물이 금지됩니다. 단, 학생 대표가 공개적으로 주는 카네이션(②)이나, 직무관련성이 없는 졸업생의 가벼운 선물(④)은 허용됩니다."
+  },
+  {
+    id: 4,
+    gate: 2,
+    num: "미션 04",
+    topic: "학교문화 조성",
+    situation: "선배 교사가 후배에게 다가와 \"다 애정이라서 하는 말인데 옷차림이 그게 뭐야? 아, 그리고 내 개인 심부름 좀 부탁해~\"라며 다가옵니다. 이 갑질의 굴레를 끊기 위해 올바른 행동 방패 두 개를 찾아드세요!",
+    question: "교직원 간 갑질 예방을 위해 실천해야 할 올바른 행동을 모두 고르세요.",
+    type: "multi",
+    choices: [
+      "① 후배 교사의 옷차림이나 외모에 대해 '다 애정에서 하는 말이야'라며 수시로 조언한다.",
+      "② 본인의 사적인 업무(개인 심부름, 자료 대리 작성 등)를 직급이 낮은 교직원에게 부탁하지 않는다.",
+      "③ 합리적인 이유나 민주적인 협의 없이, 특정 교사에게 기피 업무를 일방적으로 배정하지 않는다.",
+      "④ 연가, 육아시간 등 정당한 복무 사용에 대해 핀잔을 주거나 사생활을 과도하게 캐묻는다."
+    ],
+    answer: ["1","2"], // 0-indexed: ② = 1, ③ = 2
+    hint: "'갑질'은 지위나 권력을 이용해 선을 넘을 때 발생합니다. 개인적인 심부름(사적 노무 요구)이나 합당한 이유 없이 차별하는 행위(부당한 업무 배제)가 대표적인 나쁜 예입니다. 이런 행동들을 '안 하는' 올바른 선지 2개를 고르세요!",
+    explanation: "외모 지적(①), 사적 노무 요구, 부당한 업무 배정, 정당한 휴가 사용 방해(④) 등은 모두 교육 현장에서 근절해야 할 대표적인 갑질 유형입니다. 따라서 ②번(사적 업무 부탁 안 하기)과 ③번(기피 업무 일방 배정 안 하기)이 올바른 행동입니다."
+  },
+  {
+    id: 5,
+    gate: 2,
+    num: "미션 05",
+    topic: "학교문화 조성",
+    situation: "시스템 오류가 발생했습니다! '갑질'과 '직장 내 괴롭힘'의 개념이 뒤섞였어요. 갑질 여부를 판단할 때 핵심 요소가 아닌 엉뚱한 기준 하나를 골라내어 시스템을 복구하세요!",
+    question: "다음 중 갑질 여부의 판단 핵심 요소가 아닌 것은?",
+    type: "single",
+    choices: [
+      "① 결재 권한 또는 우월적 영향력이 있는 지위·상하 관계 등 우월적 지위",
+      "② 직무상 적정범위를 넘는 행위",
+      "③ 성별, 나이, 경력, 힘, 다수 등의 우위",
+      "④ 심신 고통 또는 유무형 손해 발생"
+    ],
+    answer: ["2"], // 0-indexed: ③ = 2
+    hint: "성별, 나이, 경력, 힘, 다수 등의 우위는 갑질이 아닌 '직장 내 괴롭힘'의 판단 요소입니다. 갑질은 주로 공식적인 지위나 결재 권한에서 비롯됩니다.",
+    explanation: "③ '성별, 나이, 경력, 힘, 다수 등의 우위'는 직장 내 괴롭힘의 판단 요소입니다. 갑질의 핵심 판단 요소는 ①우월적 지위, ②직무 범위 초과 행위, ④심신 고통 또는 손해 발생입니다."
+  },
+  {
+    id: 6,
+    gate: 2,
+    num: "미션 06",
+    topic: "학교문화 조성",
+    situation: "교무실 밖, 화가 잔뜩 난 민원인이 서성입니다. 누군가 정당한 사유 없이 민원 처리를 질질 끌며 민원인을 뺑뺑이 돌리고 있군요. 명백한 외부 갑질입니다. 범인을 찾아내세요!",
+    question: "다음 중 갑질의 사례에 해당하는 것은?",
+    type: "single",
+    choices: [
+      "① 소통 부재나 단순 법령 해석상 견해 차이가 발생한 경우",
+      "② 업무 지시에 대한 감정상 불만이나 막연히 불이익을 받았다는 느낌이 든 경우",
+      "③ 공무원은 정당한 직무상 명령에 복종해야 한다고 들은 경우",
+      "④ 정당한 사유 없이 민원 처리를 미루어 민원인을 재방문하게 한 경우"
+    ],
+    answer: ["3"], // 0-indexed: ④ = 3
+    hint: "'갑질'은 단순히 기분이 나쁘거나 의견이 다르다고 성립되는 것이 아닙니다. 자신의 지위를 이용해 상대방에게 '정당한 이유 없이' 실제적인 불편이나 피해를 주는 명확한 행동을 찾아보세요!",
+    explanation: "정당한 사유 없이 민원 처리를 미루어 민원인을 재방문하게 하는 것(④)은 '부당한 민원 응대'에 해당하는 갑질입니다. 나머지는 단순 견해 차이나 감정상 불만에 불과합니다."
+  },
+  {
+    id: 7,
+    gate: 2,
+    num: "미션 07",
+    topic: "학교문화 조성",
+    situation: "드디어 마지막 관문! 을질 사례들이 보고됩니다. 이 중 하나는 단순 억지를 넘어 상급자를 형사 처분받게 하려는 무시무시한 '범죄(무고)'입니다. 이 폭탄 선지를 찾아 해체하면 탈출 포털이 열립니다!",
+    question: "다음 중 을질의 사례에 해당하지 않는 것은?",
+    type: "single",
+    choices: [
+      "① 관리자의 정당한 업무 지시에 대하여, 정당한 사유 없이 거부하는 경우",
+      "② 객관적 근거 없이 사적 감정을 이유로 허위 갑질 신고하는 경우",
+      "③ 신고자가 신고 내용이 거짓임을 알면서도 허위로 신고하는 경우",
+      "④ 타인으로 하여금 형사처분 또는 징계처분을 받게 할 목적으로 공무원에 대해 허위의 사실을 신고한 경우"
+    ],
+    answer: ["3"], // 0-indexed: ④ = 3
+    hint: "'을질'은 주로 하급자가 상급자의 정당한 지시를 억지로 거부하거나 괴롭히는 행위입니다. 하지만 선지 중 하나는 타인을 아예 법적으로 처벌받게 할 무시무시한 '목적'을 띠고 있는 중대한 형사 범죄(무고죄)입니다. 목적의 스케일이 확연히 다른 하나를 찾아보세요!",
+    explanation: "④는 '무고죄'에 해당하는 형사 범죄입니다. 타인으로 하여금 형사처분 또는 징계처분을 받게 할 목적으로 허위 사실을 신고하는 것은 을질을 넘어 범죄입니다. ①②③은 을질에 해당합니다."
+  }
+];
+
+const GATES = [
+  {
+    id: 1, icon: "🎁",
+    title: "관문 1: 달콤살벌한 호의의 늪",
+    desc: "갑자기 학부모님들과 제자들이 교무실로 몰려들기 시작합니다! 겉보기엔 따뜻한 정이 넘치는 것 같지만, 자칫 잘못 받았다간 평행우주에 영영 갇힐 수 있습니다. 청탁금지법을 무기로 위기를 헤쳐나가세요!",
+    pills: ["미션 01: 농수산물 선물", "미션 02: 경조사비", "미션 03: 스승의 날 선물"]
+  },
+  {
+    id: 2, icon: "⚖️",
+    title: "관문 2: 아슬아슬한 선 타기",
+    desc: "위험한 선물 폭탄을 무사히 넘겼습니다! 이제 교무실 안팎의 공기가 차갑게 얼어붙습니다. 교직원 사이의 선이 무너지고, 민원인이 분노하는 이곳에서 올바른 문화를 다시 세워야 합니다.",
+    pills: ["미션 04: 갑질 예방", "미션 05: 갑질 판단 기준", "미션 06: 민원 갑질", "미션 07: 무고 범죄"]
+  }
+];
+
+
+// ══════════════════════════════════════════
+//  자료실 DATA
+//  출처: 국민권익위원회 「2026 스승의 날 알아야 할 청탁금지법 Q&A」
+//  ※ MISSIONS 배열과 완전히 분리된 참고 자료입니다.
+// ══════════════════════════════════════════
+const RES_CATS = [
+  { id: 1, name: '적용대상', color: '#5b6fd6', desc: '누가 청탁금지법을 지켜야 하나' },
+  { id: 2, name: '금지범위', color: '#9b5bd6', desc: '가액 기준 안이어도 안 되는 경우' },
+  { id: 3, name: '허용범위', color: '#2fa87e', desc: '마음을 전할 수 있는 방법' },
+  { id: 4, name: '제재대상', color: '#c08a2e', desc: '받은 사람만 처벌받을까' }
+];
+
+const RESOURCES = [
+  {
+    id: 'r1', cat: 1,
+    badge: 'no', badgeText: '적용대상 아님',
+    q: '방과 후 강사도 청탁금지법 적용대상인가요?',
+    verdict: '아닙니다.',
+    a: '학교와 위탁계약을 체결한 업체의 소속 직원인 방과 후 강사는 <strong>교직원이 아니므로</strong> 청탁금지법의 적용대상이 아닙니다.',
+    note: '다만 적용대상이 아니라는 것이 금품을 주고받아도 된다는 뜻은 아닙니다. 학교와의 계약 관계에 있는 만큼 별도의 공정성 기준이 적용될 수 있습니다.'
+  },
+  {
+    id: 'r2', cat: 1,
+    badge: 'yes', badgeText: '적용대상',
+    q: '유치원 선생님도 청탁금지법 적용대상인가요?',
+    verdict: '예, 적용대상입니다.',
+    a: '초·중·고등학교뿐 아니라 유치원도 청탁금지법 제2조제1호라목에 따른 각급 학교로서 “공공기관”에 해당합니다. 따라서 <strong>사립유치원을 포함한 유치원 교직원</strong>도 같은 법 제2조제2호다목에 따라 “공직자등”에 해당되어 적용대상입니다.',
+    law: '청탁금지법 제2조제1호라목 · 제2조제2호다목'
+  },
+  {
+    id: 'r3', cat: 1,
+    badge: 'cond', badgeText: '원장만 해당',
+    q: '어린이집 원장, 보육교사도 청탁금지법 적용대상인가요?',
+    verdict: '원장은 경우에 따라 해당하고, 보육교사는 해당하지 않습니다.',
+    a: '<strong>원장</strong> — 국공립 어린이집을 위탁받아 운영하는 경우, 그리고 여성근로자 300명 이상 또는 상시근로자 500명 이상인 공공기관의 직장어린이집을 위탁받아 운영하는 경우, 그 대표자인 원장은 청탁금지법상 공무수행사인에 해당하여 적용대상입니다.<br><br><strong>보육교사</strong> — 어린이집 보육교사는 청탁금지법 적용대상이 아닙니다.'
+  },
+  {
+    id: 'r4', cat: 2,
+    badge: 'no', badgeText: '불가',
+    q: '스승의 날에 학생 개인이 선생님께 카네이션을 드리는 것이 가능한가요?',
+    verdict: '안 됩니다.',
+    a: '다만 <strong>학생대표 등</strong>이 스승의 날에 담임교사 및 교과담당교사 등에게 <strong>공개적으로 제공</strong>하는 카네이션, 꽃은 수수 시기와 장소, 수수 경위, 금품등의 내용이나 가액 등에 비추어 사회상규에 따라 허용될 수 있습니다.',
+    law: '청탁금지법 제8조제3항제8호(사회상규)',
+    link: 'r8'
+  },
+  {
+    id: 'r5', cat: 2,
+    badge: 'no', badgeText: '불가',
+    q: '스승의 날 학급 학생들이 돈을 모아 선생님께 5만원 이하의 선물을 할 수 있나요?',
+    verdict: '안 됩니다.',
+    a: '학생에 대한 평가·지도를 <strong>상시적으로 담당하는</strong> 담임교사 및 교과담당교사와 학생 사이의 선물은, 가액기준인 5만원(농축수산물 및 그 가공품의 경우 15만원) 이하라도 원활한 직무수행, 사교·의례의 목적을 벗어나므로 예외사유에 해당할 수 없습니다.',
+    note: '금액을 낮추거나 여럿이 나누어 낸다고 해서 허용되지 않습니다. 문제는 금액이 아니라 평가·지도를 맡고 있다는 관계 그 자체입니다.',
+    law: '청탁금지법 제8조제3항제2호'
+  },
+  {
+    id: 'r6', cat: 2,
+    badge: 'no', badgeText: '불가',
+    q: '학부모회 또는 학교운영위원회의 학부모위원이 스승의 날에 교장, 교감선생님께 5만원 상당의 선물을 드려도 될까요?',
+    verdict: '안 됩니다.',
+    a: '학생들의 성적, 수행평가, 진학 관련 추천 등 <strong>학교생활 전반을 관장하는</strong> 교장, 교감선생님과 학부모회 또는 학교운영위원회 학부모위원 사이에는 밀접한 직무관련성이 인정되므로, 가액기준 내의 선물이라도 허용되기 어렵습니다.'
+  },
+  {
+    id: 'r7', cat: 3,
+    badge: 'yes', badgeText: '가능',
+    q: '스승의 날 담임선생님(교과담당선생님)께 학생이 직접 쓴 손편지나 카드를 드리는 것은 청탁금지법상 허용되나요?',
+    verdict: '예, 가능합니다.',
+    a: '특별히 과도한 경우가 아니라면 학생이 <strong>직접 쓴 손편지, 카드</strong>를 제공하는 것은 청탁금지법에 저촉되지 않습니다.',
+    note: '금지 사례가 많다 보니 아무것도 할 수 없다고 여기기 쉽지만, 마음을 전하는 길은 열려 있습니다.'
+  },
+  {
+    id: 'r8', cat: 3,
+    badge: 'cond', badgeText: '공개적 제공 시',
+    q: '스승의 날 학생대표 등이 교사에게 카네이션을 드리는 것이 가능한가요?',
+    verdict: '예, 가능합니다.',
+    a: '학생대표 등이 스승의 날에 담임교사 및 교과담당교사 등에게 <strong>공개적으로 제공</strong>하는 카네이션, 꽃은 수수 시기와 장소, 수수 경위, 금품등의 내용이나 가액 등에 비추어 사회상규에 따라 허용되는 금품등에 해당할 수 있습니다.',
+    note: '핵심은 “학생대표”와 “공개적”입니다. 학생 개인이 따로 드리는 것과는 다릅니다.',
+    law: '청탁금지법 제8조제3항제8호(사회상규)',
+    link: 'r4'
+  },
+  {
+    id: 'r9', cat: 3,
+    badge: 'yes', badgeText: '가능',
+    q: '제자가 졸업한 학교 선생님께 스승의 날 선물로 15만원 상당의 꽃바구니를 드려도 되나요?',
+    verdict: '예, 가능합니다.',
+    a: '졸업한 후 재학했던 학교 학생과 교사 간에는 특별한 사정이 없는 한 <strong>직무관련성이 없으므로</strong>, 1회 100만원(매 회계연도 300만원) 이내의 선물은 허용될 수 있습니다.',
+    note: '졸업으로 평가·지도 관계가 끝나면 판단이 달라집니다. 재학생과 졸업생을 가르는 기준이 바로 직무관련성입니다.'
+  },
+  {
+    id: 'r10', cat: 4,
+    badge: 'no', badgeText: '제공자도 제재',
+    q: '선물을 받은 선생님만 제재대상이 되나요?',
+    verdict: '아닙니다.',
+    a: '누구든지 학교 교직원등에게 수수 금지 금품등을 제공하거나 그 제공의 약속 또는 의사표시를 한 경우 제재대상에 해당합니다. 따라서 <strong>교직원등이 금품등을 지체없이 신고 또는 반환하여 제재대상에서 제외되더라도, 제공자는 금품 가액에 따라 과태료 또는 형사처벌 대상</strong>이 됩니다.',
+    note: '거절하는 것이 상대를 위하는 길이기도 합니다. 받은 뒤 지체없이 신고·반환하면 교직원 본인은 제재를 면할 수 있습니다.'
+  }
+];
+
+// 미션에서 놓쳤을 때 이어서 읽으면 좋은 자료 (MISSIONS는 읽기만 함)
+const MISSION_RESOURCES = {
+  1: ['r5', 'r6', 'r10'],
+  2: ['r5', 'r10'],
+  3: ['r4', 'r7', 'r8', 'r9']
+};
+
+let resReturnScreen = 'intro';
+let resOpenIds = [];
+
+function resBadgeIcon(t) {
+  return t === 'yes' ? '⭕' : (t === 'no' ? '❌' : '⚠️');
+}
+
+function renderResources(focusIds) {
+  focusIds = focusIds || [];
+  const focusBox = document.getElementById('res-focus');
+  if (focusIds.length) {
+    const missed = focusIds.map(id => {
+      const r = RESOURCES.find(x => x.id === id);
+      return r ? r.q : '';
+    }).filter(Boolean);
+    focusBox.innerHTML = `<div class="res-focus-banner">
+      📍 <strong>놓친 문항과 이어지는 자료 ${missed.length}건</strong>을 펼쳐 두었습니다.
+      아래에서 주황색 테두리가 표시된 항목을 먼저 읽어 보세요.
+    </div>`;
+  } else {
+    focusBox.innerHTML = '';
+  }
+
+  const html = RES_CATS.map(cat => {
+    const items = RESOURCES.filter(r => r.cat === cat.id);
+    const itemsHTML = items.map(r => {
+      const isFocus = focusIds.indexOf(r.id) !== -1;
+      const isOpen = resOpenIds.indexOf(r.id) !== -1;
+      let body = `<div class="res-verdict">${r.verdict}</div><div>${r.a}</div>`;
+      if (r.note) body += `<div style="margin-top:12px;padding:10px 12px;background:var(--bg-panel);border-radius:6px;font-size:13px;">💡 ${r.note}</div>`;
+      if (r.law) body += `<span class="res-law">⚖️ 관련 조항 · ${r.law}</span>`;
+      if (r.link) {
+        const lr = RESOURCES.find(x => x.id === r.link);
+        if (lr) body += `<a class="res-link" href="javascript:void(0)" onclick="jumpToRes('${lr.id}')">→ 함께 보기: ${lr.q}</a>`;
+      }
+      return `<div class="res-item${isOpen ? ' open' : ''}${isFocus ? ' focus' : ''}" id="item-${r.id}">
+        <button class="res-q" onclick="toggleRes('${r.id}')">
+          <span class="res-badge ${r.badge}">${resBadgeIcon(r.badge)} ${r.badgeText}</span>
+          <span>${r.q}</span>
+          <span class="res-chev">▼</span>
+        </button>
+        <div class="res-a">${body}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="res-cat">
+      <div class="res-cat-head" style="color:${cat.color};">
+        <span class="res-cat-num"><span>${cat.id}</span></span>
+        <span>${cat.name} · ${cat.desc}</span>
+        <span class="res-cat-count">${items.length}건</span>
+      </div>
+      ${itemsHTML}
+    </div>`;
+  }).join('');
+
+  document.getElementById('res-body').innerHTML = html;
+}
+
+function toggleRes(id) {
+  const pos = resOpenIds.indexOf(id);
+  if (pos === -1) resOpenIds.push(id); else resOpenIds.splice(pos, 1);
+  const el = document.getElementById('item-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleAllRes(open) {
+  resOpenIds = open ? RESOURCES.map(r => r.id) : [];
+  document.querySelectorAll('.res-item').forEach(el => el.classList.toggle('open', open));
+}
+
+function jumpToRes(id) {
+  if (resOpenIds.indexOf(id) === -1) toggleRes(id);
+  const el = document.getElementById('item-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function openResources(from, focusIds) {
+  resReturnScreen = from || 'intro';
+  focusIds = focusIds || [];
+  resOpenIds = focusIds.slice();
+  renderResources(focusIds);
+  document.getElementById('res-back-btn').textContent =
+    (resReturnScreen === 'result') ? '← 결과 화면으로' : '← 시작 화면으로';
+  showScreen('resource');
+  window.scrollTo(0, 0);
+}
+
+function openMissedResources() {
+  const missed = state.results.filter(r => !r.correct).map(r => r.id);
+  const ids = [];
+  missed.forEach(mid => {
+    (MISSION_RESOURCES[mid] || []).forEach(rid => {
+      if (ids.indexOf(rid) === -1) ids.push(rid);
+    });
+  });
+  openResources('result', ids);
+}
+
+function closeResources() {
+  showScreen(resReturnScreen);
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════
+//  MODE CONFIG  (문항 데이터는 건드리지 않고 규칙만 분기)
+// ══════════════════════════════════════════
+const MODES = {
+  solo: {
+    key: 'solo',
+    name: '개인전',
+    icon: '🏃',
+    identLabel: '👤 닉네임 입력',
+    identPlaceholder: '이름을 입력하세요',
+    identError: '⚠️ 닉네임을 입력해야 시작할 수 있습니다.',
+    startHint: '⏱️ 시작 버튼을 누르면 5분 타이머가 바로 시작됩니다.',
+    timed: true,
+    limitSec: 300,
+    maxScore: 900,
+    firstTryPoint: 100,
+    retryPoint: 100,
+    wrongPenalty: 10,
+    hintPenalty: 30,
+    timeBonus: 200
+  },
+  team: {
+    key: 'team',
+    name: '모둠전',
+    icon: '👥',
+    identLabel: '👥 모둠 이름 입력',
+    identPlaceholder: '예: 3학년 연구실, 행정실 1모둠',
+    identError: '⚠️ 모둠 이름을 입력해야 시작할 수 있습니다.',
+    startHint: '💬 시간 제한이 없습니다. 모둠원과 충분히 이야기한 뒤 답을 제출하세요.',
+    timed: false,
+    limitSec: 0,
+    maxScore: 700,
+    firstTryPoint: 100,
+    retryPoint: 50,
+    wrongPenalty: 0,
+    hintPenalty: 20,
+    timeBonus: 0
+  }
+};
+
+let selectedMode = 'solo';
+function cfg() { return MODES[state.mode || selectedMode]; }
+
+function selectMode(mode) {
+  selectedMode = mode;
+  const c = MODES[mode];
+  document.getElementById('mode-card-solo').classList.toggle('selected', mode === 'solo');
+  document.getElementById('mode-card-team').classList.toggle('selected', mode === 'team');
+  document.getElementById('rules-solo').style.display = (mode === 'solo') ? '' : 'none';
+  document.getElementById('rules-team').style.display = (mode === 'team') ? '' : 'none';
+  document.getElementById('ident-label').innerHTML =
+    c.identLabel + ' <span style="color:var(--accent-red)">* 필수</span>';
+  const input = document.getElementById('nickname-input');
+  input.placeholder = c.identPlaceholder;
+  document.getElementById('nickname-error').textContent = c.identError;
+  document.getElementById('mode-hint').textContent = c.startHint;
+}
+
+// ══════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════
+let state = {
+  score: 0,
+  missionIndex: 0,   // current mission (0-6)
+  gateIndex: 0,      // 0 or 1
+  hintsUsed: 0,
+  correctCount: 0,
+  results: [],       // {id, correct}
+  timerInterval: null,
+  secondsLeft: 300,  // 5 minutes
+  started: false,
+  selectedChoices: [],
+  currentHintUsed: false,
+  gameOver: false,
+  mode: 'solo',
+  secondsUp: 0,
+  attempts: {},
+  firstTryCount: 0,
+  retryCount: 0,
+  wrongAttempts: 0
+};
+
+// ══════════════════════════════════════════
+//  SCREEN MANAGEMENT
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════
+function startTimer() {
+  state.timerInterval = setInterval(() => {
+    if (!cfg().timed) { state.secondsUp++; updateHUD(); return; }
+    state.secondsLeft--;
+    updateHUD();
+    if (state.secondsLeft <= 0) {
+      clearInterval(state.timerInterval);
+      showResult();
+    }
+  }, 1000);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+function updateHUD() {
+  document.getElementById('hud-score').textContent = state.score;
+  const timerEl = document.getElementById('hud-timer');
+  const timerWrap = document.getElementById('hud-timer-wrap');
+  timerWrap.className = 'hud-item timer';
+  if (cfg().timed) {
+    timerEl.textContent = formatTime(state.secondsLeft);
+    if (state.secondsLeft <= 60) timerWrap.classList.add('danger');
+    else if (state.secondsLeft <= 180) timerWrap.classList.add('warning');
+  } else {
+    timerEl.textContent = formatTime(state.secondsUp);
+  }
+  const prog = ((state.missionIndex) / MISSIONS.length) * 100;
+  document.getElementById('progress-bar').style.width = prog + '%';
+  document.getElementById('hud-progress').textContent = `미션 ${state.missionIndex + 1} / ${MISSIONS.length}`;
+}
+
+// ══════════════════════════════════════════
+//  GAME FLOW
+// ══════════════════════════════════════════
+function onNicknameInput() {
+  const val = document.getElementById('nickname-input').value.trim();
+  const btn = document.getElementById('start-btn');
+  const err = document.getElementById('nickname-error');
+  if (val) {
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    err.style.display = 'none';
+  } else {
+    btn.style.opacity = '0.4';
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+function startGame() {
+  const nickname = document.getElementById('nickname-input').value.trim();
+  if (!nickname) {
+    document.getElementById('nickname-error').style.display = 'block';
+    document.getElementById('nickname-input').focus();
+    return;
+  }
+  const c = MODES[selectedMode];
+  state = {
+    score: 0, missionIndex: 0, gateIndex: 0,
+    hintsUsed: 0, correctCount: 0, results: [],
+    timerInterval: null, secondsLeft: c.limitSec,
+    started: false, selectedChoices: [], currentHintUsed: false, gameOver: false,
+    nickname,
+    mode: selectedMode,
+    secondsUp: 0, attempts: {}, firstTryCount: 0, retryCount: 0, wrongAttempts: 0
+  };
+  showGate(0);
+}
+
+function showGate(gateIdx) {
+  const gate = GATES[gateIdx];
+  document.getElementById('gate-icon').textContent = gate.icon;
+  document.getElementById('gate-title').innerHTML = gate.title.replace('관문 ' + gate.id, `<span class="gate-num">관문 ${gate.id}</span>`);
+  document.getElementById('gate-desc').textContent = gate.desc;
+  const pillsEl = document.getElementById('gate-pills');
+  pillsEl.innerHTML = gate.pills.map(p => `<div class="mission-pill">📌 ${p}</div>`).join('');
+  showScreen('gate');
+
+  // store gate index for startGateMissions
+  state.currentGateToStart = gateIdx;
+}
+
+function startGateMissions() {
+  if (!state.started) {
+    state.started = true;
+    startTimer();
+  }
+  showScreen('mission');
+  renderMission();
+}
+
+function renderMission() {
+  const m = MISSIONS[state.missionIndex];
+  state.selectedChoices = [];
+  state.currentHintUsed = false;
+  updateHUD();
+
+  let choicesHTML = '';
+  if (m.type === 'ox') {
+    choicesHTML = `
+      <div class="ox-choices">
+        <button class="ox-btn" id="ox-O" onclick="toggleOX('O')">
+          ⭕<div class="ox-label">맞다 (O)</div>
+        </button>
+        <button class="ox-btn" id="ox-X" onclick="toggleOX('X')">
+          ❌<div class="ox-label">틀리다 (X)</div>
+        </button>
+      </div>`;
+  } else {
+    choicesHTML = `<div class="multi-choices">` +
+      m.choices.map((c, i) =>
+        `<button class="choice-btn" id="choice-${i}" onclick="toggleChoice(${i})">
+          <div class="choice-num">${i+1}</div>
+          <div>${c}</div>
+        </button>`
+      ).join('') +
+      `</div>`;
+  }
+
+  const multiNote = m.type === 'multi' ? `<div style="font-size:12px;color:var(--accent-orange);background:rgba(244,132,95,0.08);border-radius:6px;padding:6px 12px;margin-bottom:12px;">📌 정답이 여러 개일 수 있습니다. 모두 선택하세요.</div>` : '';
+  const teamNote = !cfg().timed ? `<div class="team-note">💬 모둠원과 상의한 뒤 제출하세요. 오답 감점은 없지만, 첫 시도에 맞히면 100점 · 다시 풀어 맞히면 50점입니다.</div>` : '';
+
+  const topicIcon = m.topic === '청탁금지법' ? '⚖️' : '🏫';
+  const typeLabel = m.type === 'ox' ? '🔵 O / X 문제' : m.type === 'single' ? '🟡 단일 선택' : '🟢 복수 선택';
+  document.getElementById('mission-content').innerHTML = `
+    <div class="mission-header">
+      <span class="mission-num">${m.num}</span>
+      <span class="mission-title-text">${topicIcon} ${m.topic}</span>
+      <span style="margin-left:auto;font-size:11px;background:var(--bg-panel);border:1px solid var(--border);border-radius:20px;padding:3px 12px;color:var(--text-secondary);">${typeLabel}</span>
+    </div>
+    <div class="situation-box">
+      <div class="sit-label">🎬 상황</div>
+      ${m.situation}
+    </div>
+    <div class="question-card">
+      <div class="question-text">
+        <div class="q-label">❓ QUESTION</div>
+        ${m.question}
+      </div>
+      ${teamNote}${multiNote}
+      <div id="hint-box" class="hint-box"></div>
+      ${choicesHTML}
+      <div class="submit-row">
+        <button class="hint-btn" id="hint-btn" onclick="useHint()">💡 힌트 보기 <span style="color:var(--accent-red);font-size:10px">(-${cfg().hintPenalty}점)</span></button>
+        <button class="btn btn-primary" onclick="submitAnswer()" style="padding:12px 28px;font-size:14px;">✅ 정답 제출</button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleOX(val) {
+  state.selectedChoices = [val];
+  document.getElementById('ox-O').className = 'ox-btn' + (val === 'O' ? ' selected-O' : '');
+  document.getElementById('ox-X').className = 'ox-btn' + (val === 'X' ? ' selected-X' : '');
+}
+
+function toggleChoice(idx) {
+  const m = MISSIONS[state.missionIndex];
+  const strIdx = idx.toString();
+  const btn = document.getElementById('choice-' + idx);
+  if (m.type === 'single') {
+    // radio
+    state.selectedChoices = [strIdx];
+    document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  } else {
+    // multi toggle
+    const pos = state.selectedChoices.indexOf(strIdx);
+    if (pos === -1) { state.selectedChoices.push(strIdx); btn.classList.add('selected'); }
+    else { state.selectedChoices.splice(pos, 1); btn.classList.remove('selected'); }
+  }
+}
+
+function useHint() {
+  if (state.currentHintUsed) return;
+  state.currentHintUsed = true;
+  state.hintsUsed++;
+  state.score = Math.max(0, state.score - cfg().hintPenalty);
+  updateHUD();
+
+  const m = MISSIONS[state.missionIndex];
+  const hintEl = document.getElementById('hint-box');
+  hintEl.innerHTML = `<div class="hint-label">💡 힌트 <span style="color:var(--accent-red)">(−${cfg().hintPenalty}점 차감)</span></div>${m.hint}`;
+  hintEl.classList.add('show');
+  const btn = document.getElementById('hint-btn');
+  btn.className = 'hint-btn used';
+  btn.textContent = '💡 힌트 사용됨';
+}
+
+function submitAnswer() {
+  const m = MISSIONS[state.missionIndex];
+  if (state.selectedChoices.length === 0) {
+    flashError(); return;
+  }
+
+  let correct = false;
+  if (m.type === 'ox') {
+    correct = state.selectedChoices[0] === m.answer;
+  } else {
+    // compare sorted arrays
+    const selected = [...state.selectedChoices].sort();
+    const answer = [...m.answer].sort();
+    correct = JSON.stringify(selected) === JSON.stringify(answer);
+  }
+
+  const c = cfg();
+  state.attempts[m.id] = (state.attempts[m.id] || 0) + 1;
+  const firstTry = state.attempts[m.id] === 1;
+
+  // 미션당 한 번만 기록 — 첫 시도 성공 여부를 남긴다
+  if (firstTry) state.results.push({ id: m.id, correct });
+
+  let delta = 0;
+  if (correct) {
+    delta = firstTry ? c.firstTryPoint : c.retryPoint;
+    state.score += delta;
+    state.correctCount++;
+    if (firstTry) state.firstTryCount++; else state.retryCount++;
+  } else {
+    delta = -c.wrongPenalty;
+    state.wrongAttempts++;
+    state.score = Math.max(0, state.score + delta);
+  }
+  updateHUD();
+
+  showFeedback(correct, delta, m.explanation);
+}
+
+function flashError() {
+  const card = document.querySelector('.question-card');
+  card.style.borderColor = 'var(--accent-red)';
+  card.style.boxShadow = '0 0 20px var(--shadow-red)';
+  setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 500);
+}
+
+function showFeedback(correct, delta, explanation) {
+  document.getElementById('fb-icon').textContent = correct ? '🎉' : '😓';
+  document.getElementById('fb-result').textContent = correct ? '정답입니다!' : '오답입니다...';
+  document.getElementById('fb-result').className = 'feedback-result ' + (correct ? 'correct' : 'wrong');
+  const deltaEl = document.getElementById('fb-delta');
+  if (correct) {
+    deltaEl.textContent = '+' + delta + '점 획득!';
+    deltaEl.className = 'feedback-score-delta plus';
+  } else {
+    deltaEl.textContent = delta === 0 ? '감점 없음 · 다시 풀어 보세요' : '−' + Math.abs(delta) + '점 차감';
+    deltaEl.className = 'feedback-score-delta zero';
+  }
+  document.getElementById('fb-explanation').innerHTML = correct ? explanation : '';
+  document.querySelector('.feedback-explanation').style.display = correct ? '' : 'none';
+
+  // last mission?
+  const isLast = state.missionIndex === MISSIONS.length - 1;
+  const nextBtn = document.getElementById('fb-next-btn');
+  const retryBtn = document.getElementById('fb-retry-btn');
+  if (correct) {
+    nextBtn.textContent = isLast ? '🏁 결과 보기' : '다음 미션 →';
+    nextBtn.style.display = '';
+    retryBtn.style.display = 'none';
+  } else {
+    nextBtn.style.display = 'none';
+    retryBtn.style.display = '';
+  }
+
+  const overlay = document.getElementById('feedback-overlay');
+  overlay.classList.add('show');
+}
+
+function retryMission() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+}
+
+function nextMission() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+
+  state.missionIndex++;
+
+  if (state.missionIndex >= MISSIONS.length) {
+    showResult(); return;
+  }
+
+  const nextM = MISSIONS[state.missionIndex];
+  const currentM = MISSIONS[state.missionIndex - 1];
+
+  if (nextM.gate !== currentM.gate) {
+    // new gate
+    const gateIdx = nextM.gate - 1;
+    showGate(gateIdx);
+  } else {
+    renderMission();
+  }
+}
+
+// ══════════════════════════════════════════
+//  RESULT
+// ══════════════════════════════════════════
+function showResult() {
+  clearInterval(state.timerInterval);
+  const c = cfg();
+  const timeUsed = c.timed ? (c.limitSec - state.secondsLeft) : state.secondsUp;
+  const bonusApplied = c.timed && state.secondsLeft > 0 && state.missionIndex >= MISSIONS.length;
+  const finalScore = state.score + (bonusApplied ? c.timeBonus : 0);
+  const maxScore = c.maxScore;
+
+  document.getElementById('result-max').textContent = '🌸 / ' + maxScore + '점 만점 🌸';
+
+  // trophy & title
+  let grade, gradeTxt, trophy, title, subtitle;
+  const pct = finalScore / maxScore;
+  if (pct >= 0.95) { grade = 'S'; trophy = '🏆'; title = '완벽한 탈출!'; subtitle = '청탁금지법 & 갑질 예방 마스터!'; }
+  else if (pct >= 0.8) { grade = 'A'; trophy = '🥇'; title = '탈출 성공!'; subtitle = '훌륭합니다! 거의 완벽한 지식이에요.'; }
+  else if (pct >= 0.6) { grade = 'B'; trophy = '🥈'; title = '탈출 성공!'; subtitle = '잘 하셨어요! 조금 더 공부해봐요.'; }
+  else if (pct >= 0.4) { grade = 'C'; trophy = '🥉'; title = '겨우 탈출...'; subtitle = '아슬아슬했어요. 한번 더 복습해요!'; }
+  else { grade = 'D'; trophy = '😰'; title = '탈출 실패...'; subtitle = '다시 도전해보세요!'; }
+
+  document.getElementById('result-trophy').textContent = trophy;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-subtitle').textContent = c.icon + ' ' + c.name + ' · ' + (state.nickname || '익명') + ' — ' + subtitle;
+  document.getElementById('result-score').textContent = finalScore;
+
+  const gradeEl = document.getElementById('result-grade');
+  gradeEl.textContent = grade + ' 등급';
+  gradeEl.className = 'grade-badge grade-' + grade;
+
+  // dots
+  const dotsEl = document.getElementById('result-dots');
+  dotsEl.innerHTML = state.results.map((r, i) =>
+    `<div class="mission-dot ${r.correct ? 'correct' : 'wrong'}" title="미션 ${r.id} · 첫 시도 ${r.correct ? '정답' : '오답'}">${r.correct ? '✓' : '✗'}</div>`
+  ).join('');
+
+  // breakdown
+  const hintDeduction = state.hintsUsed * c.hintPenalty;
+  const rows = [];
+  if (c.timed) {
+    rows.push(`
+    <div class="breakdown-row">
+      <span class="br-label">✅ 정답 점수 (${state.correctCount}/${MISSIONS.length})</span>
+      <span class="br-val green">+${state.correctCount * c.firstTryPoint}점</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="br-label">❌ 오답 패널티 (${state.wrongAttempts}회)</span>
+      <span class="br-val red">−${state.wrongAttempts * c.wrongPenalty}점</span>
+    </div>`);
+  } else {
+    rows.push(`
+    <div class="breakdown-row">
+      <span class="br-label">✅ 첫 시도 정답 (${state.firstTryCount}/${MISSIONS.length})</span>
+      <span class="br-val green">+${state.firstTryCount * c.firstTryPoint}점</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="br-label">🔁 다시 풀어 정답 (${state.retryCount}회)</span>
+      <span class="br-val blue">+${state.retryCount * c.retryPoint}점</span>
+    </div>`);
+  }
+  rows.push(`
+    <div class="breakdown-row">
+      <span class="br-label">💡 힌트 사용 (${state.hintsUsed}회)</span>
+      <span class="br-val red">−${hintDeduction}점</span>
+    </div>`);
+  if (c.timed) {
+    rows.push(`
+    <div class="breakdown-row">
+      <span class="br-label">⏱️ 5분 이내 완료 보너스</span>
+      <span class="br-val yellow">${bonusApplied ? '+' + c.timeBonus + '점' : '0점'}</span>
+    </div>`);
+  }
+  rows.push(`
+    <div class="breakdown-row">
+      <span class="br-label">🕐 ${c.timed ? '소요 시간' : '토의 포함 소요 시간'}</span>
+      <span class="br-val blue">${formatTime(timeUsed)}</span>
+    </div>`);
+
+  document.getElementById('result-breakdown').innerHTML = `
+    <h3>📊 점수 내역 — ${c.name}</h3>
+    ${rows.join('')}
+    <div class="breakdown-row" style="border-top:1px solid var(--accent-yellow);margin-top:4px;padding-top:12px;">
+      <span class="br-label" style="font-weight:800;color:var(--text-primary)">최종 점수</span>
+      <span class="br-val yellow" style="font-size:18px">${finalScore}점 / ${maxScore}점</span>
+    </div>
+  `;
+
+  // 놓친 문항과 이어지는 자료 안내
+  const missedIds = state.results.filter(r => !r.correct).map(r => r.id);
+  const linked = [];
+  missedIds.forEach(mid => {
+    (MISSION_RESOURCES[mid] || []).forEach(rid => {
+      if (linked.indexOf(rid) === -1) linked.push(rid);
+    });
+  });
+  const rrBox = document.getElementById('result-resource');
+  if (linked.length) {
+    const missedLabel = missedIds
+      .filter(mid => (MISSION_RESOURCES[mid] || []).length)
+      .map(mid => '미션 ' + String(mid).padStart(2, '0'))
+      .join(', ');
+    rrBox.innerHTML = `
+      <div class="result-resource-card">
+        <div class="rr-label">📄 이어서 읽어 보세요</div>
+        <div class="rr-desc">${missedLabel}을(를) 첫 시도에 놓치셨습니다.<br>관련된 청탁금지법 Q&A 자료 <strong>${linked.length}건</strong>을 모아 두었습니다.</div>
+        <button class="btn btn-primary" style="padding:12px 26px;font-size:14px;" onclick="openMissedResources()">📍 관련 자료 ${linked.length}건 보기</button>
+      </div>`;
+    rrBox.style.display = '';
+  } else {
+    rrBox.innerHTML = '';
+    rrBox.style.display = 'none';
+  }
+
+  showScreen('result');
+}
+
+function restartGame() {
+  clearInterval(state.timerInterval);
+  selectMode(selectedMode);
+  showScreen('intro');
+}
+
+function copyResult() {
+  const c = cfg();
+  const total = MISSIONS.length;
+  const timeUsed = c.timed ? (c.limitSec - state.secondsLeft) : state.secondsUp;
+  const bonusApplied = c.timed && state.secondsLeft > 0 && state.missionIndex >= total;
+  const finalScore = state.score + (bonusApplied ? c.timeBonus : 0);
+  const hintDeduction = state.hintsUsed * c.hintPenalty;
+
+  const gradeEl = document.getElementById('result-grade');
+  const grade = gradeEl ? gradeEl.textContent : '';
+  const title = document.getElementById('result-title').textContent;
+
+  const missionLines = state.results.map((r) =>
+    `  미션 ${String(r.id).padStart(2,'0')}: ${r.correct ? '✅ 첫 시도 정답' : '🔁 다시 풀어 해결'}`
+  ).join('\n');
+
+  const scoreLines = c.timed
+    ? `  정답 점수 (${state.correctCount}/${total}): +${state.correctCount * c.firstTryPoint}점
+  오답 패널티 (${state.wrongAttempts}회): −${state.wrongAttempts * c.wrongPenalty}점
+  힌트 사용 (${state.hintsUsed}회): −${hintDeduction}점
+  5분 이내 완료 보너스: ${bonusApplied ? '+' + c.timeBonus + '점' : '0점'}
+  소요 시간: ${formatTime(timeUsed)}`
+    : `  첫 시도 정답 (${state.firstTryCount}/${total}): +${state.firstTryCount * c.firstTryPoint}점
+  다시 풀어 정답 (${state.retryCount}회): +${state.retryCount * c.retryPoint}점
+  힌트 사용 (${state.hintsUsed}회): −${hintDeduction}점
+  소요 시간: ${formatTime(timeUsed)}`;
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}.`;
+
+  const text = `🚪 방탈출 - 수상한 출근길
+${c.icon} ${c.name} · ${state.nickname || '익명'}
+📅 ${dateStr}
+━━━━━━━━━━━━━━━━━━━━
+${title} ${grade}
+
+📊 미션 결과
+${missionLines}
+
+📋 점수 내역
+${scoreLines}
+━━━━━━━━━━━━━━━━━━━━
+🏆 최종 점수: ${finalScore}점 / ${c.maxScore}점`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✅ 복사 완료!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 결과 복사하기';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    alert('복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
+  });
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+selectMode('solo');
+</script>
+</body>
+</html>
