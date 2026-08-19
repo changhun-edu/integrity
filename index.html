@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청렴연수 - 수상한 출근길</title>
+<title>방탈출 - 수상한 출근길</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
@@ -38,6 +38,14 @@
 
     /* 레이아웃 상수 */
     --hud-h: 48px;
+
+    /* ── 공통 컨테이너 ──
+       모든 화면과 헤더가 같은 폭·같은 좌우 여백을 씁니다.
+       화면이 바뀌어도 글 시작점이 흔들리지 않습니다. */
+    --container: 720px;
+    --gutter: 16px;
+    /* 화면 폭이 넓으면 가운데 정렬, 좁으면 gutter만큼만 띄운다 */
+    --edge: max(var(--gutter), calc((100% - var(--container)) / 2));
 
     /* ── 서체 ── */
     --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
@@ -89,7 +97,7 @@
   #app { position: relative; z-index: 1; }
 
   /* ─── Screens ─── */
-  .screen { display: none; min-height: 100vh; padding: 24px 16px; }
+  .screen { display: none; min-height: 100vh; padding: 24px var(--gutter); }
   .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
   /* ─── INTRO ─── */
@@ -131,7 +139,7 @@
   }
 
   .story-box {
-    max-width: 640px;
+    max-width: var(--container);
     width: 100%;
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -154,7 +162,7 @@
   }
 
   .score-rules {
-    max-width: 640px;
+    max-width: var(--container);
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -215,7 +223,7 @@
   }
   .gate-title .gate-num { color: var(--accent-orange); }
   .gate-desc {
-    max-width: 520px;
+    max-width: var(--container);
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.8;
@@ -235,7 +243,7 @@
   }
 
   /* ─── MISSION SCREEN ─── */
-  #screen-mission { padding: 20px 16px; justify-content: flex-start; padding-top: 30px; }
+  #screen-mission { padding: 20px var(--gutter); justify-content: flex-start; padding-top: 30px; }
 
   /* HUD */
   .hud {
@@ -243,7 +251,7 @@
     background: rgba(250,249,247,0.94);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
+    padding: 10px var(--edge);
     display: flex; align-items: center; justify-content: space-between;
     z-index: 100;
   }
@@ -259,7 +267,10 @@
 
   .progress-bar-wrap {
     position: fixed; top: var(--hud-h); left: 0; right: 0;
-    height: 3px; background: var(--border); z-index: 100;
+    height: 3px; z-index: 100;
+    padding: 0 var(--edge);
+    background: var(--border);
+    background-clip: content-box;   /* 막대도 헤더 내용과 같은 폭으로 */
   }
   .progress-bar-fill {
     height: 100%;
@@ -269,7 +280,7 @@
 
   /* Mission Card */
   .mission-wrapper {
-    max-width: 700px; width: 100%;
+    max-width: var(--container); width: 100%;
     margin-top: calc(var(--hud-h) + 20px);
     padding-bottom: 40px;
   }
@@ -424,6 +435,7 @@
 
   /* Feedback */
   .feedback-overlay {
+    padding: 20px var(--gutter);
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.7);
     backdrop-filter: blur(6px);
@@ -438,7 +450,7 @@
     background: var(--bg-card);
     border-radius: 16px;
     padding: 36px 40px;
-    max-width: 500px; width: 90%;
+    max-width: var(--container); width: 100%;
     text-align: center;
     transform: scale(0.9);
     transition: transform 0.3s;
@@ -505,7 +517,7 @@
   .score-max { font-size: 16px; color: var(--text-dim); margin-bottom: 36px; }
 
   .result-breakdown {
-    max-width: 480px; width: 100%;
+    max-width: var(--container); width: 100%;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -579,7 +591,7 @@
   .btn-copy.copied { border-color: var(--accent-green); color: var(--accent-green); }
 
   /* ─── Mode Select ─── */
-  .mode-select { max-width: 640px; width: 100%; margin-bottom: 20px; }
+  .mode-select { max-width: var(--container); width: 100%; margin-bottom: 20px; }
   .mode-label {
     font-size: 11px; letter-spacing: 2px; color: var(--accent-yellow);
     font-weight: 800; text-transform: uppercase;
@@ -631,7 +643,7 @@
 
   /* ─── 자료실 ─── */
   #screen-resource.active { justify-content: flex-start; }
-  .res-wrap { max-width: 720px; width: 100%; }
+  .res-wrap { max-width: var(--container); width: 100%; }
   .res-head { text-align: center; margin-bottom: 8px; }
   .res-head h2 {
     font-family: 'Noto Serif KR', serif;
@@ -736,7 +748,7 @@
     border-radius: 12px;
     padding: 18px 20px;
     margin: 4px 0 20px;
-    max-width: 480px; width: 100%;
+    max-width: var(--container); width: 100%;
     text-align: center;
   }
   .result-resource-card .rr-label {
@@ -934,13 +946,13 @@
      반응형 — 모둠전은 스마트폰이 기본
      ══════════════════════════════════════ */
   @media (max-width: 720px) {
-    .screen { padding: 20px 14px; }
+    :root { --gutter: 14px; }
+    .screen { padding: 20px var(--gutter); }
     .intro-subtitle { margin-bottom: 24px; }
     .story-box { padding: 18px 20px; margin-bottom: 24px; }
     .mode-select { margin-bottom: 16px; }
     .score-rules { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
     .rule-card { padding: 14px 10px; }
-    .res-wrap { max-width: 100%; }
   }
 
   @media (max-width: 560px) {
@@ -950,8 +962,9 @@
       --fs-body:     1rem;        /* 16px */
       --fs-question: 1.1875rem;   /* 19px */
       --fs-title:    1.4375rem;   /* 23px */
+      --gutter: 12px;
     }
-    .screen { padding: 18px 12px; }
+    .screen { padding: 18px var(--gutter); }
 
     .intro-badge { margin-bottom: 20px; letter-spacing: 2px; }
     .intro-subtitle { margin-bottom: 20px; }
@@ -1089,7 +1102,7 @@
       </div>
     </div>
 
-    <div style="max-width:640px;width:100%;margin-bottom:24px;background:var(--bg-card);border:1px solid var(--accent-yellow);border-radius:10px;padding:20px 24px;">
+    <div style="max-width:var(--container);width:100%;margin-bottom:24px;background:var(--bg-card);border:1px solid var(--accent-yellow);border-radius:10px;padding:20px 24px;">
       <div id="ident-label" style="font-size:var(--fs-caption);letter-spacing:0.02em;color:var(--accent-yellow);font-weight:var(--fw-bold);text-transform:uppercase;margin-bottom:10px;">닉네임 입력 <span style="color:var(--accent-red)">* 필수</span></div>
       <input type="text" id="nickname-input" placeholder="이름을 입력하세요" maxlength="20"
         style="width:100%;padding:13px 18px;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:var(--font-sans);font-size:var(--fs-body);font-weight:var(--fw-semibold);outline:none;text-align:center;transition:border-color 0.2s;"
