@@ -838,6 +838,20 @@
     :root { --border: #b9b6ae; --text-secondary: #3f434e; }
   }
 
+  /* ── 제작자 표기 (눈에 띄지 않게) ── */
+  .credit {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: var(--fw-normal);
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    opacity: 0.55;
+    transition: opacity 0.3s;
+    user-select: none;
+  }
+  .credit:hover { opacity: 0.9; }
+
   /* ══════════════════════════════════════
      타이포그래피 — 척도 5단 · 무게 3단 · 줄간격 3단
      ══════════════════════════════════════ */
@@ -1118,6 +1132,7 @@
     <div style="font-size:var(--fs-caption);color:var(--text-dim);margin-top:10px;text-align:center;line-height:1.6;">
       국민권익위원회 「2026 스승의 날 알아야 할 청탁금지법 Q&amp;A」 10건
     </div>
+    <div class="credit">만든이 2026 최창훈</div>
   </div>
 
   <!-- ════ GATE SCREEN ════ -->
