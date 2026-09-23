@@ -1030,6 +1030,76 @@
     .screen { min-height: auto; padding-top: 28px; padding-bottom: 28px; }
     .gate-icon { font-size: 40px; margin-bottom: 12px; }
   }
+
+  /* ══════════════════════════════════════
+     오픈소스 라이선스 고지
+     ══════════════════════════════════════ */
+  .oss-btn {
+    position: fixed; right: 14px; bottom: 14px; z-index: 150;
+    background: var(--bg-card); color: var(--text-secondary);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; font-family: var(--font-sans);
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    cursor: pointer; opacity: 0.85; transition: opacity 0.2s, border-color 0.2s;
+  }
+  .oss-btn:hover, .oss-btn:focus-visible { opacity: 1; border-color: var(--border-glow); }
+  /* 문제를 푸는 동안에는 제출 버튼과 겹치지 않게 숨긴다 */
+  body[data-screen="gate"] .oss-btn,
+  body[data-screen="mission"] .oss-btn { display: none; }
+
+  .oss-overlay {
+    position: fixed; inset: 0; z-index: 400;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px var(--gutter);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .oss-overlay.show { opacity: 1; pointer-events: all; }
+  .oss-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    width: 100%; max-width: var(--container); max-height: calc(100vh - 40px);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .oss-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 18px 22px; border-bottom: 1px solid var(--border);
+  }
+  .oss-head h2 { font-size: var(--fs-question); font-weight: var(--fw-bold); letter-spacing: -0.02em; }
+  .oss-close {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    width: 40px; height: 40px; font-size: 1.1rem; color: var(--text-secondary); cursor: pointer;
+  }
+  .oss-body {
+    overflow-y: auto; padding: 18px 22px 24px;
+    font-size: var(--fs-small); line-height: var(--lh-normal); color: var(--text-secondary);
+  }
+  .oss-body h3 {
+    font-size: var(--fs-small); font-weight: var(--fw-bold); color: var(--text-primary);
+    margin: 20px 0 8px;
+  }
+  .oss-body h3:first-child { margin-top: 0; }
+  .oss-body p { margin-bottom: 8px; }
+  .oss-body table { width: 100%; border-collapse: collapse; font-size: var(--fs-caption); margin-bottom: 6px; }
+  .oss-body th, .oss-body td {
+    text-align: left; vertical-align: top; padding: 8px 6px;
+    border-bottom: 1px solid var(--border); word-break: break-word;
+  }
+  .oss-body th { color: var(--text-primary); font-weight: var(--fw-bold); white-space: nowrap; }
+  .oss-body ul { padding-left: 18px; margin-bottom: 8px; }
+  .oss-body li { margin-bottom: 4px; }
+  .oss-body pre {
+    background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.75rem; line-height: 1.55; color: var(--text-primary);
+    white-space: pre-wrap; word-break: break-word; margin-bottom: 8px;
+  }
+  .oss-body details { margin-bottom: 8px; }
+  .oss-body summary { cursor: pointer; font-weight: var(--fw-semibold); color: var(--accent-yellow); padding: 6px 0; }
+  @media (max-width: 560px) {
+    .oss-btn { right: 10px; bottom: 10px; padding: 6px 11px; }
+    .oss-head, .oss-body { padding-left: 16px; padding-right: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -1044,7 +1114,7 @@
     <div class="story-box">
       <div class="story-label">스토리</div>
       <div style="font-size:40px;text-align:center;margin:8px 0 12px;">👩‍🏫</div>
-      ☀️ 화창한 아침, 운남초등학교 정문을 통과하는 순간 눈앞이 번쩍하더니 낯선 교무실에 덩그러니 서 있게 됩니다. 달력을 보니 오늘은 <strong>스승의 날 🌹</strong>이자, <strong>학부모 상담 주간 👨‍👩‍👧</strong>이자, <strong>동료 선생님의 결혼식 💒</strong>이 겹친 아주 기묘한 날입니다.<br><br>
+      ☀️ 화창한 아침, 학교 정문을 통과하는 순간 눈앞이 번쩍하더니 낯선 교무실에 덩그러니 서 있게 됩니다. 달력을 보니 오늘은 <strong>스승의 날 🌹</strong>이자, <strong>학부모 상담 주간 👨‍👩‍👧</strong>이자, <strong>동료 선생님의 결혼식 💒</strong>이 겹친 아주 기묘한 날입니다.<br><br>
       🗝️ 이 교무실을 탈출하려면 <strong>7개의 미션</strong>을 모두 해결해야 합니다. 지식을 총동원하여 위기를 헤쳐나가세요!
     </div>
 
@@ -1236,6 +1306,160 @@
       </div>
       <button class="btn btn-primary" id="fb-next-btn" onclick="nextMission()">다음 미션 →</button>
       <button class="btn btn-secondary" id="fb-retry-btn" onclick="retryMission()" style="display:none;margin-top:10px;">다시 풀기</button>
+    </div>
+  </div>
+
+  <!-- ════ 오픈소스 라이선스 ════ -->
+  <button class="oss-btn" type="button" onclick="openOSS()" aria-haspopup="dialog">ⓘ 오픈소스 라이선스</button>
+  <div class="oss-overlay" id="oss-overlay" role="dialog" aria-modal="true" aria-labelledby="oss-title" onclick="if(event.target===this)closeOSS()">
+    <div class="oss-card">
+      <div class="oss-head">
+        <h2 id="oss-title">오픈소스 라이선스</h2>
+        <button class="oss-close" type="button" onclick="closeOSS()" aria-label="닫기">✕</button>
+      </div>
+      <div class="oss-body">
+        <h3>이 웹사이트에 대하여</h3>
+        <p>「수상한 출근길」의 기획·스토리·미션 구성·화면 디자인·프로그램 코드는 제작자가 직접 만들었습니다.<br>만든이: 2026 최창훈</p>
+
+        <h3>사용한 오픈소스</h3>
+        <p>이 사이트는 아래 글꼴 외에 외부 라이브러리나 스크립트를 쓰지 않습니다. 두 글꼴 모두 SIL Open Font License 1.1에 따라 웹에 불러와 사용하며, 글꼴 파일을 고치거나 따로 판매하지 않습니다.</p>
+        <table>
+          <thead><tr><th>구성 요소</th><th>라이선스</th><th>저작권자</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Pretendard (v1.3.9)<br>본문 글꼴 · jsDelivr CDN</td>
+              <td>OFL-1.1</td>
+              <td>© 2021 Kil Hyung-jin (Reserved Font Name 'Pretendard')<br>
+                  © 2014-2021 Adobe (Reserved Font Name 'Source')<br>
+                  © 2016 The Inter Project Authors (Reserved Font Name 'Inter')<br>
+                  © 2021 The M+ FONTS Project Authors (Reserved Font Name 'M PLUS 1')</td>
+            </tr>
+            <tr>
+              <td>Noto Serif KR<br>제목 글꼴 · Google Fonts</td>
+              <td>OFL-1.1</td>
+              <td>© 2012 Google Inc. All Rights Reserved.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Apache-2.0 · MIT · BSD-3-Clause · ISC 라이선스를 따르는 구성 요소는 사용하지 않았으므로 해당 전문은 싣지 않았습니다.</p>
+
+        <h3>저작권 고지 원문</h3>
+        <pre>Pretendard
+Copyright (c) 2021, Kil Hyung-jin (https://github.com/orioncactus/pretendard),
+with Reserved Font Name 'Pretendard'.
+
+Copyright 2014-2021 Adobe (http://www.adobe.com/),
+with Reserved Font Name 'Source'.
+Source is a trademark of Adobe in the United States and/or other countries.
+
+Copyright (c) 2016 The Inter Project Authors (https://github.com/rsms/inter),
+with Reserved Font Name 'Inter'.
+
+Copyright 2021 The M+ FONTS Project Authors (https://github.com/coz-m/MPLUS_FONTS),
+with Reserved Font Name 'M PLUS 1'.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.</pre>
+        <pre>Noto Serif KR
+Copyright 2012 Google Inc. All Rights Reserved.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.</pre>
+
+        <details>
+          <summary>SIL Open Font License 1.1 전문 보기</summary>
+          <pre>SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION &amp; CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.</pre>
+          <p>https://openfontlicense.org</p>
+        </details>
+
+        <h3>그 밖의 자료</h3>
+        <ul>
+          <li><strong>이모지</strong> — 이미지 파일을 넣지 않고 유니코드 문자로만 적었습니다. 화면의 그림은 보는 사람의 기기(Windows · macOS · Android 등)에 내장된 이모지 글꼴이 그려 줍니다.</li>
+          <li><strong>자료실</strong> — 국민권익위원회 「2026 스승의 날 알아야 할 청탁금지법 Q&amp;A」의 문답을 읽기 쉽게 텍스트로 다시 적었습니다. 원문 카드뉴스 이미지는 싣지 않았습니다.</li>
+          <li><strong>미션 문항</strong> — 제작자가 상황과 문장을 새로 구성했습니다. 미션 1~3은 「부정청탁 및 금품등 수수의 금지에 관한 법률」과 국민권익위원회 「청탁금지법 해설집」(2024), 「청탁금지법 학교 및 학교법인 매뉴얼」(2022)을, 미션 4~7은 정부·교육청의 갑질 예방 안내 내용을 참고했습니다.</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -1676,6 +1900,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   currentScreen = id;
+  document.body.dataset.screen = id;
 }
 
 // ══════════════════════════════════════════
@@ -2191,6 +2416,9 @@ function isGameInProgress() {
 }
 
 function handleBackNavigation() {
+  // 라이선스 창이 떠 있으면 뒤로가기는 창 닫기
+  if (isOSSOpen()) { closeOSS(); return; }
+
   // 자료실에서는 뒤로가기가 곧 닫기
   if (currentScreen === 'resource') {
     closeResources();
@@ -2248,8 +2476,30 @@ function initNavGuard() {
 }
 
 // ══════════════════════════════════════════
+//  오픈소스 라이선스 팝업
+// ══════════════════════════════════════════
+let ossLastFocus = null;
+function isOSSOpen() {
+  const o = document.getElementById('oss-overlay');
+  return !!(o && o.classList.contains('show'));
+}
+function openOSS() {
+  ossLastFocus = document.activeElement;
+  document.getElementById('oss-overlay').classList.add('show');
+  document.querySelector('#oss-overlay .oss-close').focus();
+}
+function closeOSS() {
+  document.getElementById('oss-overlay').classList.remove('show');
+  if (ossLastFocus && ossLastFocus.focus) ossLastFocus.focus();
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && isOSSOpen()) closeOSS();
+});
+
+// ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
+document.body.dataset.screen = 'intro';
 selectMode('solo');
 initNavGuard();
 </script>
